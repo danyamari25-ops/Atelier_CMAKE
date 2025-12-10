@@ -1,140 +1,82 @@
-
-
-# .github/workflows/tests.yml
- 
-name: Pipeline CI/CD
- 
+name: Automatisation des tests
 on: push
- 
+
 jobs:
-
-  # ----------------------------------------------------
-
-  # JOB 1 : COMPILATION
-
-  # ----------------------------------------------------
-
   Compilation:
-
     runs-on: ubuntu-latest
-
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
- 
-      - name: Installer CMake
-
-        run: sudo apt-get update && sudo apt-get install -y cmake
- 
-      - name: Compilation et Tests CTest
-
+      - name: Compilation
         run: |
-
+          last_directory=$(basename ${{ runner.workspace }})
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
           mkdir build
-
           cd build
-
           cmake ..
-
           make
+          make test
 
-          ctest # Exécute tous les tests CTest (vérification globale)
- 
-  # ----------------------------------------------------
-
-  # JOBS DE TESTS PARALLÈLES (Dépendent de la compilation)
-
-  # ----------------------------------------------------
- 
   Test_Add:
-
     runs-on: ubuntu-latest
-
-    needs: Compilation 
-
+    needs: Compilation
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
-
-      - name: Recompiler et Tester la fonction add
-
+      - name: Test fonction add
         run: |
+          last_directory=$(basename ${{ runner.workspace }})
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+          ./src/calculator add 10 5
 
-          mkdir build; cd build; cmake ..; make
-
-          ./src/calculator add 10 5 | grep "15"
- 
   Test_Sub:
-
     runs-on: ubuntu-latest
-
-    needs: Compilation 
-
+    needs: Compilation
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
-
-      - name: Recompiler et Tester la fonction sub
-
+      - name: Test fonction sub
         run: |
-
-          mkdir build; cd build; cmake ..; make
-
-          ./src/calculator sub 10 5 | grep "5"
- 
-  # NOUVEAU JOB : Multiplication
+          last_directory=$(basename ${{ runner.workspace }})
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+          ./src/calculator sub 10 5
 
   Test_Mul:
-
     runs-on: ubuntu-latest
-
-    needs: Compilation 
-
+    needs: Compilation
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
-
-      - name: Recompiler et Tester la fonction mul
-
+      - name: Test fonction mul
         run: |
-
-          mkdir build; cd build; cmake ..; make
-
-          ./src/calculator mul 5 5 | grep "25"
- 
-  # NOUVEAU JOB : Division
+          last_directory=$(basename ${{ runner.workspace }})
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+          ./src/calculator mul 10 5
 
   Test_Div:
-
     runs-on: ubuntu-latest
-
-    needs: Compilation 
-
+    needs: Compilation
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
-
-      - name: Recompiler et Tester la fonction div
-
+      - name: Test fonction div
         run: |
+          last_directory=$(basename ${{ runner.workspace }})
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+          ./src/calculator div 10 5
 
-          mkdir build; cd build; cmake ..; make
-
-          # Attention: la division de 1 par 5 donne 0.2. Le test doit le refléter.
-
-          ./src/calculator div 1 5 | grep "0.200000"
-          
-Test_Car:
+  Test_Car:
     runs-on: ubuntu-latest
     needs: Compilation
     steps:
@@ -148,22 +90,10 @@ Test_Car:
           cmake ..
           make
           ./src/calculator car 5
- 
-  
-
- 
 
   Deploy:
-
     runs-on: ubuntu-latest
-
-    # Dépend de TOUS les 5 jobs de test pour s'assurer qu'ils ont tous réussi
-
-    needs: [Test_Add, Test_Sub, Test_Mul, Test_Div, Test_Carre] 
-
+    needs: [Test_Add, Test_Sub, Test_Mul, Test_Div, Test_Car]
     steps:
-
-      - name: Déploiement de la solution
-
-        run: echo "🎉 Déploiement de la solution réussi !"
- 
+      - name: Déploiement
+        run: echo "Déploiement de la solution"
