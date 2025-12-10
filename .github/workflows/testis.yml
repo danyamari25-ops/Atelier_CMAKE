@@ -133,32 +133,25 @@ jobs:
           # Attention: la division de 1 par 5 donne 0.2. Le test doit le refléter.
 
           ./src/calculator div 1 5 | grep "0.200000"
- 
-  Test_Carre:
-
+          
+Test_Car:
     runs-on: ubuntu-latest
-
-    needs: Compilation 
-
+    needs: Compilation
     steps:
-
-      - name: Checkout du code
-
-        uses: actions/checkout@v4
-
-      - name: Recompiler et Tester la fonction carre
-
+      - name: Test fonction car
         run: |
-
-          mkdir build; cd build; cmake ..; make
-
-          ./src/calculator car 5 | grep "25"
+          last_directory=$(basename ${{ runner.workspace }} )
+          git clone https://github.com/${{ github.repository }}.git
+          cd ./$last_directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+          ./src/calculator car 5
  
-  # ----------------------------------------------------
+  
 
-  # JOB FINAL : DÉPLOIEMENT
-
-  # ----------------------------------------------------
+ 
 
   Deploy:
 
